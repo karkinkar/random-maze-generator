@@ -1,3 +1,12 @@
+/*
+ * This file is part of Random Maze Generator.
+ *  Random Maze Generator is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ *
+ *  Random Maze Generator is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along with Random Maze Generator. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package org.mazeGenerator;
 
 import java.util.Arrays;
@@ -12,22 +21,23 @@ public class PrimsMazeGenerator implements IMazeGenerator {
 
   List<Cell> getNeighbors(int x, int y, int M, int N) {
     return Arrays.stream(neighbors)
-      .map(neighbor -> new int[] {x+neighbor[0], y+neighbor[1]})
-      .filter(neighbor -> neighbor[0] >= 0 && neighbor[0] < M && neighbor[1] >= 0 && neighbor[1] < N)
-      .map(neighbor -> new Cell(neighbor[0], neighbor[1]))
-      .collect(Collectors.toList());
+        .map(neighbor -> new int[] {x + neighbor[0], y + neighbor[1]})
+        .filter(
+            neighbor -> neighbor[0] >= 0 && neighbor[0] < M && neighbor[1] >= 0 && neighbor[1] < N)
+        .map(neighbor -> new Cell(neighbor[0], neighbor[1]))
+        .collect(Collectors.toList());
   }
 
   Cell getRandomStart(int M, int N) {
-    int randomRow = (int)((Math.random()*1927) % M);
-    int randomCol = (int)((Math.random()*1927) % N);
+    int randomRow = (int) ((Math.random() * 1927) % M);
+    int randomCol = (int) ((Math.random() * 1927) % N);
 
     return new Cell(randomRow, randomCol);
   }
 
   HashSet<Cell> prims(int M, int N, boolean[][][] maze) {
     var startCell = new Cell(0, 0);
-    var endCell = new Cell(M-1, N-1);
+    var endCell = new Cell(M - 1, N - 1);
 
     var startingCell = getRandomStart(M, N);
     var visitedCells = new HashSet<Cell>();
@@ -35,10 +45,10 @@ public class PrimsMazeGenerator implements IMazeGenerator {
 
     var frontier = new PriorityQueue<Cell>();
     getNeighbors(startingCell.getX(), startingCell.getY(), M, N).stream()
-      .filter(cell -> !visitedCells.contains(cell))
-      .forEach(frontier::add);
+        .filter(cell -> !visitedCells.contains(cell))
+        .forEach(frontier::add);
 
-    while(!frontier.isEmpty()) {
+    while (!frontier.isEmpty()) {
       var candidate = frontier.poll();
 
       if (visitedCells.contains(startCell) && visitedCells.contains(endCell)) {
@@ -50,12 +60,11 @@ public class PrimsMazeGenerator implements IMazeGenerator {
       visitedCells.add(candidate);
       var neighbors = getNeighbors(candidate.getX(), candidate.getY(), M, N);
       neighbors.stream()
-        .filter(visitedCells::contains).min(Comparator.comparingInt(Cell::getWeight))
-        .ifPresent(cell -> openDoor(maze, cell, candidate));
+          .filter(visitedCells::contains)
+          .min(Comparator.comparingInt(Cell::getWeight))
+          .ifPresent(cell -> openDoor(maze, cell, candidate));
 
-      neighbors.stream()
-        .filter(cell -> !visitedCells.contains(cell))
-        .forEach(frontier::add);
+      neighbors.stream().filter(cell -> !visitedCells.contains(cell)).forEach(frontier::add);
     }
     return visitedCells;
   }
@@ -80,8 +89,8 @@ public class PrimsMazeGenerator implements IMazeGenerator {
   }
 
   void closeDoors(boolean[][][] maze) {
-    for(int i = 0 ; i < 2 ; i++) {
-      for(int j = 0 ; j < maze[i].length ; j++) {
+    for (int i = 0; i < 2; i++) {
+      for (int j = 0; j < maze[i].length; j++) {
         Arrays.fill(maze[i][j], true);
       }
     }
@@ -95,4 +104,3 @@ public class PrimsMazeGenerator implements IMazeGenerator {
     return maze;
   }
 }
-
